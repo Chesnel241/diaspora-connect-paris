@@ -89,6 +89,7 @@ export default {
         "3xl": "1.5rem",
       },
       fontFamily: {
+        display: ["Playfair Display", "Georgia", "serif"],
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
       },
       keyframes: {
