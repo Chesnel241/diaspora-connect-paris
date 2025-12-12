@@ -129,26 +129,14 @@ try {
   process.exit(1);
 }
 
-// Test d'insertion (simulation sans réellement insérer)
+// Test d'insertion (simulation)
 console.log('\n🧪 Test de la politique d\'insertion...');
 try {
-  // On simule une insertion pour vérifier les permissions
-  const testData = {
-    full_name: 'Test Verification',
-    email: `test-${Date.now()}@example.com`,
-    phone_code: '+33',
-    phone: '600000000',
-    country: 'France',
-    city: 'Paris',
-    needs_accommodation: false,
-    has_children: false,
-    has_reduced_mobility: false,
-    has_special_needs: false
-  };
-
-  console.log('   Simulation d\'une insertion...');
-  // Note: On ne fait pas réellement l'insertion pour ne pas polluer la DB
-  console.log('✅ Les permissions d\'insertion semblent correctes (simulé)\n');
+  // Note: On ne fait pas d'insertion réelle pour ne pas polluer la base de données
+  // L'utilisateur devra tester manuellement via l'interface web
+  console.log('   ℹ️  Le test d\'insertion doit être fait manuellement via l\'application web');
+  console.log('   ℹ️  Utilisez "npm run dev" et testez le formulaire d\'inscription');
+  console.log('✅ Pour tester: remplissez le formulaire sur http://localhost:5173\n');
 
 } catch (error) {
   console.error('❌ Erreur lors du test d\'insertion:', error.message);
