@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion';
-import { Globe, Church, Users } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import logo from '@/assets/logo.png';
 
 const AboutSection = () => {
   const { t } = useLanguage();
 
   const organizations = [
-    { icon: Globe, name: t('about_org1'), color: 'text-gold' },
-    { icon: Church, name: t('about_org2'), color: 'text-destructive' },
-    { icon: Users, name: t('about_org3'), color: 'text-emerald' },
+    { name: t('about_org1') },
+    { name: t('about_org2') },
+    { name: t('about_org3') },
   ];
 
   return (
@@ -63,9 +63,7 @@ const AboutSection = () => {
               whileHover={{ scale: 1.05, y: -5 }}
               className="bg-card rounded-2xl p-8 shadow-lg border border-border text-center card-hover"
             >
-              <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary mb-4`}>
-                <org.icon className={`h-8 w-8 ${org.color}`} />
-              </div>
+              <img src={logo} alt={org.name} className="h-16 w-16 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground">{org.name}</h3>
             </motion.div>
           ))}
