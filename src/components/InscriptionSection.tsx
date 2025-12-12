@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
+import { insertInscription, checkEmailExists } from '@/lib/supabase';
+import type { InscriptionData } from '@/lib/supabase';
 
 interface FormData {
   fullName: string;
@@ -95,8 +97,41 @@ const InscriptionSection = () => {
 
     setIsSubmitting(true);
 
-    // Simulate API call (since backend isn't set up yet)
-    setTimeout(() => {
+    try {
+      // Check if email already exists
+      const emailExists = await checkEmailExists(formData.email);
+      if (emailExists) {
+        toast.error(t('register_error_title'), {
+          description: 'Cette adresse email est déjà enregistrée. / This email is already registered.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Prepare data for Supabase
+      const inscriptionData: Omit<InscriptionData, 'id' | 'created_at' | 'updated_at'> = {
+        full_name: formData.fullName,
+        email: formData.email,
+        phone_code: formData.phoneCode,
+        phone: formData.phone,
+        country: formData.country,
+        city: formData.city,
+        needs_accommodation: formData.needsAccommodation,
+        start_date: formData.startDate || null,
+        end_date: formData.endDate || null,
+        has_children: formData.hasChildren,
+        number_of_children: formData.numberOfChildren ? parseInt(formData.numberOfChildren) : null,
+        children_ages: formData.childrenAges || null,
+        has_reduced_mobility: formData.hasReducedMobility,
+        has_special_needs: formData.hasSpecialNeeds,
+        allergies: formData.allergies || null,
+        comments: formData.comments || null,
+        status: 'pending',
+      };
+
+      // Insert into Supabase
+      await insertInscription(inscriptionData);
+
       setIsSubmitting(false);
       setIsSuccess(true);
       toast.success(t('register_success_title'), {
@@ -125,7 +160,13 @@ const InscriptionSection = () => {
           comments: '',
         });
       }, 2000);
-    }, 1500);
+    } catch (error) {
+      console.error('Error submitting registration:', error);
+      setIsSubmitting(false);
+      toast.error(t('register_error_title'), {
+        description: 'Une erreur est survenue. Veuillez réessayer. / An error occurred. Please try again.',
+      });
+    }
   };
 
   const handleChange = (field: keyof FormData, value: string | boolean) => {
