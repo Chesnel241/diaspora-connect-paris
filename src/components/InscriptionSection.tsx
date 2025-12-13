@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   User, Mail, Phone, Globe, MapPin, Home, Baby,
-  UtensilsCrossed, MessageSquare, Check, Loader2, Accessibility
+  UtensilsCrossed, MessageSquare, Check, Loader2, Accessibility, Shield
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
-import { insertInscription, checkEmailExists } from '@/lib/supabase';
+import { insertInscription, checkEmailExists, SupabaseError } from '@/lib/supabase';
 import type { InscriptionData } from '@/lib/supabase';
+import { validateFormData, SECURITY_CONFIG } from '@/utils/validation';
+import { useRateLimit, formatTimeUntilReset } from '@/hooks/useRateLimit';
+import { ReCaptcha, useReCaptchaEnabled } from '@/components/ReCaptcha';
+import type ReCAPTCHA from 'react-google-recaptcha';
 
 interface FormData {
   fullName: string;
@@ -48,6 +52,15 @@ const InscriptionSection = () => {
   const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const isReCaptchaEnabled = useReCaptchaEnabled();
+
+  // Rate limiting hook
+  const rateLimit = useRateLimit({
+    maxAttempts: SECURITY_CONFIG.RATE_LIMIT.maxAttempts,
+    windowMs: SECURITY_CONFIG.RATE_LIMIT.windowMs,
+  });
 
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -70,36 +83,42 @@ const InscriptionSection = () => {
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof FormData, string>> = {};
-
-    if (!formData.fullName.trim()) newErrors.fullName = 'Required';
-    if (!formData.email.trim()) {
-      newErrors.email = 'Required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email';
-    }
-    if (!formData.phone.trim()) newErrors.phone = 'Required';
-    if (!formData.country.trim()) newErrors.country = 'Required';
-    if (!formData.city.trim()) newErrors.city = 'Required';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      toast.error(t('register_error_title'));
+    // Check rate limiting
+    if (rateLimit.isBlocked) {
+      const timeRemaining = formatTimeUntilReset(rateLimit.getTimeUntilReset());
+      toast.error('Trop de tentatives / Too many attempts', {
+        description: `Veuillez réessayer dans ${timeRemaining} / Please try again in ${timeRemaining}`,
+      });
+      return;
+    }
+
+    // Check reCAPTCHA if enabled
+    if (isReCaptchaEnabled && !recaptchaToken) {
+      toast.error(t('register_error_title'), {
+        description: 'Veuillez compléter le reCAPTCHA / Please complete the reCAPTCHA',
+      });
+      return;
+    }
+
+    // Validate and sanitize form data
+    const validation = validateFormData(formData);
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      toast.error(t('register_error_title'), {
+        description: 'Veuillez corriger les erreurs dans le formulaire / Please correct the errors in the form',
+      });
       return;
     }
 
     setIsSubmitting(true);
+    rateLimit.recordAttempt();
 
     try {
       // Check if email already exists
-      const emailExists = await checkEmailExists(formData.email);
+      const emailExists = await checkEmailExists(validation.sanitizedData.email);
       if (emailExists) {
         toast.error(t('register_error_title'), {
           description: 'Cette adresse email est déjà enregistrée. / This email is already registered.',
@@ -108,24 +127,24 @@ const InscriptionSection = () => {
         return;
       }
 
-      // Prepare data for Supabase
+      // Prepare data for Supabase (using sanitized data)
       const inscriptionData: Omit<InscriptionData, 'id' | 'created_at' | 'updated_at'> = {
-        full_name: formData.fullName,
-        email: formData.email,
-        phone_code: formData.phoneCode,
-        phone: formData.phone,
-        country: formData.country,
-        city: formData.city,
-        needs_accommodation: formData.needsAccommodation,
-        start_date: formData.startDate || null,
-        end_date: formData.endDate || null,
-        has_children: formData.hasChildren,
-        number_of_children: formData.numberOfChildren ? parseInt(formData.numberOfChildren) : null,
-        children_ages: formData.childrenAges || null,
-        has_reduced_mobility: formData.hasReducedMobility,
-        has_special_needs: formData.hasSpecialNeeds,
-        allergies: formData.allergies || null,
-        comments: formData.comments || null,
+        full_name: validation.sanitizedData.fullName,
+        email: validation.sanitizedData.email,
+        phone_code: validation.sanitizedData.phoneCode,
+        phone: validation.sanitizedData.phone,
+        country: validation.sanitizedData.country,
+        city: validation.sanitizedData.city,
+        needs_accommodation: validation.sanitizedData.needsAccommodation,
+        start_date: validation.sanitizedData.startDate || null,
+        end_date: validation.sanitizedData.endDate || null,
+        has_children: validation.sanitizedData.hasChildren,
+        number_of_children: validation.sanitizedData.numberOfChildren || null,
+        children_ages: validation.sanitizedData.childrenAges || null,
+        has_reduced_mobility: validation.sanitizedData.hasReducedMobility,
+        has_special_needs: validation.sanitizedData.hasSpecialNeeds,
+        allergies: validation.sanitizedData.allergies || null,
+        comments: validation.sanitizedData.comments || null,
         status: 'pending',
       };
 
@@ -137,6 +156,12 @@ const InscriptionSection = () => {
       toast.success(t('register_success_title'), {
         description: t('register_success_message'),
       });
+
+      // Reset reCAPTCHA
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setRecaptchaToken(null);
+      }
 
       // Reset form after 2 seconds
       setTimeout(() => {
@@ -159,13 +184,27 @@ const InscriptionSection = () => {
           allergies: '',
           comments: '',
         });
+        setErrors({});
       }, 2000);
-    } catch (error) {
-      console.error('Error submitting registration:', error);
+    } catch (error: any) {
       setIsSubmitting(false);
-      toast.error(t('register_error_title'), {
-        description: 'Une erreur est survenue. Veuillez réessayer. / An error occurred. Please try again.',
-      });
+
+      // Reset reCAPTCHA on error
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setRecaptchaToken(null);
+      }
+
+      // Handle SupabaseError with user-friendly message
+      if (error instanceof SupabaseError) {
+        toast.error(t('register_error_title'), {
+          description: error.message,
+        });
+      } else {
+        toast.error(t('register_error_title'), {
+          description: 'Une erreur est survenue. Veuillez réessayer. / An error occurred. Please try again.',
+        });
+      }
     }
   };
 
@@ -486,10 +525,46 @@ const InscriptionSection = () => {
             />
           </div>
 
+          {/* reCAPTCHA */}
+          <div className="mb-6 flex justify-center">
+            <ReCaptcha
+              ref={recaptchaRef}
+              onChange={(token) => setRecaptchaToken(token)}
+              onExpired={() => setRecaptchaToken(null)}
+              onErrored={() => setRecaptchaToken(null)}
+            />
+          </div>
+
+          {/* Rate Limit Warning */}
+          {rateLimit.isBlocked && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl"
+            >
+              <div className="flex items-center gap-2 text-red-800">
+                <Shield className="h-5 w-5" />
+                <span className="text-sm font-medium">
+                  Trop de tentatives. Réessayez dans {formatTimeUntilReset(rateLimit.getTimeUntilReset())} /
+                  Too many attempts. Try again in {formatTimeUntilReset(rateLimit.getTimeUntilReset())}
+                </span>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Rate Limit Info */}
+          {!rateLimit.isBlocked && rateLimit.remainingAttempts < SECURITY_CONFIG.RATE_LIMIT.maxAttempts && (
+            <div className="mb-4 text-center text-sm text-muted-foreground">
+              <Shield className="inline h-4 w-4 mr-1" />
+              {rateLimit.remainingAttempts} tentative{rateLimit.remainingAttempts > 1 ? 's' : ''} restante{rateLimit.remainingAttempts > 1 ? 's' : ''} /
+              {rateLimit.remainingAttempts} attempt{rateLimit.remainingAttempts > 1 ? 's' : ''} remaining
+            </div>
+          )}
+
           {/* Submit Button */}
           <motion.button
             type="submit"
-            disabled={isSubmitting || isSuccess}
+            disabled={isSubmitting || isSuccess || rateLimit.isBlocked || (isReCaptchaEnabled && !recaptchaToken)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 transition-all duration-300 ${

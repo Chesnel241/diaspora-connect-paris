@@ -76,7 +76,34 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ---
 
-## Étape 5 : Tester en local
+## Étape 5 : Configurer reCAPTCHA (Optionnel mais Recommandé)
+
+reCAPTCHA protège votre formulaire contre les bots et le spam.
+
+1. **Allez sur** https://www.google.com/recaptcha/admin/create
+
+2. **Remplissez le formulaire** :
+   - **Label** : `diaspora-connect-paris`
+   - **Type reCAPTCHA** : Sélectionnez **reCAPTCHA v2** → "Je ne suis pas un robot" (checkbox)
+   - **Domaines** :
+     - `localhost` (pour le développement)
+     - Votre domaine de production (ex: `diaspora-connect-paris.com`)
+   - Acceptez les conditions
+
+3. **Cliquez sur** "Envoyer"
+
+4. **Copiez** la **Site Key** (clé du site)
+
+5. **Ajoutez-la** à votre fichier `.env` :
+   ```env
+   VITE_RECAPTCHA_SITE_KEY=votre-site-key-ici
+   ```
+
+⚠️ **Note** : Si vous ne configurez pas reCAPTCHA, l'application fonctionnera quand même, mais sera plus vulnérable au spam.
+
+---
+
+## Étape 6 : Tester en local
 
 1. **Ouvrez un terminal** dans le dossier du projet
 
@@ -108,6 +135,28 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ## 🎉 C'est terminé !
 
 Votre application est maintenant connectée à Supabase et peut enregistrer les inscriptions.
+
+---
+
+---
+
+## 🔒 Étape 7 : Sécurité (IMPORTANT)
+
+L'application inclut plusieurs protections de sécurité :
+
+### ✅ Protections Actives
+- **Validation et nettoyage** de toutes les données
+- **Rate limiting** : 3 tentatives par minute maximum
+- **reCAPTCHA** (si configuré)
+- **Row Level Security** sur Supabase
+- **Contraintes SQL** strictes
+
+### 📖 Documentation Complète
+Consultez le fichier **`SECURITY.md`** pour :
+- Détails sur toutes les protections
+- Configuration recommandée
+- Tests de sécurité à effectuer
+- Checklist de déploiement
 
 ---
 

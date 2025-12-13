@@ -67,41 +67,136 @@ export interface InscriptionData {
 }
 
 /**
- * Insert a new inscription into the database
- * @param data The inscription data to insert
- * @returns The inserted inscription or null if error
+ * Custom error class for Supabase operations
  */
-export async function insertInscription(data: Omit<InscriptionData, 'id' | 'created_at' | 'updated_at'>) {
-  const { data: inscription, error } = await supabase
-    .from('inscriptions')
-    .insert([data])
-    .select()
-    .single();
+export class SupabaseError extends Error {
+  code?: string;
+  details?: any;
 
-  if (error) {
-    console.error('Error inserting inscription:', error);
-    throw error;
+  constructor(message: string, code?: string, details?: any) {
+    super(message);
+    this.name = 'SupabaseError';
+    this.code = code;
+    this.details = details;
+  }
+}
+
+/**
+ * Error handler that logs in development but not in production
+ */
+function handleError(error: any, context: string): SupabaseError {
+  // Only log in development
+  if (import.meta.env.DEV) {
+    console.error(`[Supabase Error - ${context}]:`, error);
   }
 
-  return inscription;
+  // Generic user-friendly message
+  let userMessage = 'Une erreur est survenue. / An error occurred.';
+  let errorCode = error?.code || 'UNKNOWN';
+
+  // Map specific Supabase errors to user-friendly messages
+  if (error?.code === '23505') {
+    // Duplicate key violation
+    userMessage = 'Cette inscription existe déjà. / This registration already exists.';
+    errorCode = 'DUPLICATE_ENTRY';
+  } else if (error?.code === '23503') {
+    // Foreign key violation
+    userMessage = 'Données invalides. / Invalid data.';
+    errorCode = 'INVALID_DATA';
+  } else if (error?.message?.includes('timeout')) {
+    userMessage = 'Délai d\'attente dépassé. Veuillez réessayer. / Timeout. Please try again.';
+    errorCode = 'TIMEOUT';
+  } else if (error?.message?.includes('network')) {
+    userMessage = 'Problème de connexion. Vérifiez votre internet. / Connection issue. Check your internet.';
+    errorCode = 'NETWORK_ERROR';
+  }
+
+  return new SupabaseError(userMessage, errorCode, error);
+}
+
+/**
+ * Insert a new inscription into the database
+ * @param data The inscription data to insert
+ * @returns The inserted inscription
+ * @throws SupabaseError if insertion fails
+ */
+export async function insertInscription(data: Omit<InscriptionData, 'id' | 'created_at' | 'updated_at'>): Promise<InscriptionData> {
+  try {
+    const { data: inscription, error } = await supabase
+      .from('inscriptions')
+      .insert([data])
+      .select()
+      .single();
+
+    if (error) {
+      throw handleError(error, 'insertInscription');
+    }
+
+    if (!inscription) {
+      throw new SupabaseError('Aucune donnée retournée / No data returned', 'NO_DATA');
+    }
+
+    return inscription as InscriptionData;
+  } catch (error: any) {
+    if (error instanceof SupabaseError) {
+      throw error;
+    }
+    throw handleError(error, 'insertInscription');
+  }
 }
 
 /**
  * Check if an email is already registered
  * @param email The email to check
  * @returns True if email exists, false otherwise
+ * @throws SupabaseError if check fails
  */
 export async function checkEmailExists(email: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from('inscriptions')
-    .select('id')
-    .eq('email', email)
-    .limit(1);
+  try {
+    // Validate email format before querying
+    if (!email || typeof email !== 'string') {
+      throw new SupabaseError('Email invalide / Invalid email', 'INVALID_EMAIL');
+    }
 
-  if (error) {
-    console.error('Error checking email:', error);
-    return false;
+    const { data, error } = await supabase
+      .from('inscriptions')
+      .select('id')
+      .eq('email', email.toLowerCase())
+      .limit(1);
+
+    if (error) {
+      throw handleError(error, 'checkEmailExists');
+    }
+
+    return data !== null && data.length > 0;
+  } catch (error: any) {
+    if (error instanceof SupabaseError) {
+      throw error;
+    }
+    throw handleError(error, 'checkEmailExists');
   }
+}
 
-  return data && data.length > 0;
+/**
+ * Get inscription statistics (requires authentication)
+ * @returns Statistics object
+ */
+export async function getInscriptionStats() {
+  try {
+    const { data, error } = await supabase
+      .from('inscription_stats')
+      .select('*')
+      .single();
+
+    if (error) {
+      throw handleError(error, 'getInscriptionStats');
+    }
+
+    return data;
+  } catch (error: any) {
+    if (error instanceof SupabaseError) {
+      throw error;
+    }
+    throw handleError(error, 'getInscriptionStats');
+  }
 }

@@ -43,14 +43,24 @@ CREATE TABLE IF NOT EXISTS inscriptions (
 
   -- Constraints
   CONSTRAINT valid_email CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-  CONSTRAINT valid_phone CHECK (length(phone) >= 6),
-  CONSTRAINT valid_dates CHECK (end_date IS NULL OR start_date IS NULL OR end_date >= start_date)
+  CONSTRAINT valid_email_length CHECK (length(email) <= 254),
+  CONSTRAINT valid_phone CHECK (length(phone) >= 6 AND length(phone) <= 20),
+  CONSTRAINT valid_phone_format CHECK (phone ~* '^[0-9\s\-\+\(\)]+$'),
+  CONSTRAINT valid_dates CHECK (end_date IS NULL OR start_date IS NULL OR end_date >= start_date),
+  CONSTRAINT valid_full_name_length CHECK (length(full_name) > 0 AND length(full_name) <= 100),
+  CONSTRAINT valid_country_length CHECK (length(country) > 0 AND length(country) <= 100),
+  CONSTRAINT valid_city_length CHECK (length(city) > 0 AND length(city) <= 100),
+  CONSTRAINT valid_children_count CHECK (number_of_children IS NULL OR (number_of_children >= 0 AND number_of_children <= 20)),
+  CONSTRAINT valid_children_ages_length CHECK (children_ages IS NULL OR length(children_ages) <= 100),
+  CONSTRAINT valid_allergies_length CHECK (allergies IS NULL OR length(allergies) <= 500),
+  CONSTRAINT valid_comments_length CHECK (comments IS NULL OR length(comments) <= 1000)
 );
 
--- Create index for better query performance
-CREATE INDEX IF NOT EXISTS idx_inscriptions_email ON inscriptions(email);
+-- Create indexes for better query performance and constraints
+CREATE UNIQUE INDEX IF NOT EXISTS idx_inscriptions_email_unique ON inscriptions(LOWER(email));
 CREATE INDEX IF NOT EXISTS idx_inscriptions_created_at ON inscriptions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_inscriptions_status ON inscriptions(status);
+CREATE INDEX IF NOT EXISTS idx_inscriptions_phone ON inscriptions(phone_code, phone);
 
 -- Create a function to automatically update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
