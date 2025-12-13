@@ -33,4 +33,3 @@ jobs:
           port: ${{ secrets.FTP_PORT }}
           local_path: './dist/*'
           remote_path: ${{ secrets.FTP_REMOTE_DIR }}
-          sftp_only: true
