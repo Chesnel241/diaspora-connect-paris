@@ -47,8 +47,10 @@ CREATE TABLE IF NOT EXISTS inscriptions (
   CONSTRAINT valid_dates CHECK (end_date IS NULL OR start_date IS NULL OR end_date >= start_date)
 );
 
+-- Add unique constraint on email to prevent duplicate registrations
+ALTER TABLE inscriptions ADD CONSTRAINT unique_email UNIQUE (email);
+
 -- Create index for better query performance
-CREATE INDEX IF NOT EXISTS idx_inscriptions_email ON inscriptions(email);
 CREATE INDEX IF NOT EXISTS idx_inscriptions_created_at ON inscriptions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_inscriptions_status ON inscriptions(status);
 

@@ -87,21 +87,14 @@ export async function insertInscription(data: Omit<InscriptionData, 'id' | 'crea
 }
 
 /**
- * Check if an email is already registered
- * @param email The email to check
- * @returns True if email exists, false otherwise
+ * Check if an error is a duplicate email error
+ * @param error The Supabase error object
+ * @returns True if it's a duplicate email error
  */
-export async function checkEmailExists(email: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from('inscriptions')
-    .select('id')
-    .eq('email', email)
-    .limit(1);
-
-  if (error) {
-    console.error('Error checking email:', error);
-    return false;
+export function isDuplicateEmailError(error: unknown): boolean {
+  if (error && typeof error === 'object' && 'code' in error) {
+    // PostgreSQL unique violation error code
+    return (error as { code: string }).code === '23505';
   }
-
-  return data && data.length > 0;
+  return false;
 }

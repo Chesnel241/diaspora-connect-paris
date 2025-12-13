@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
-import { insertInscription, checkEmailExists } from '@/lib/supabase';
+import { insertInscription, isDuplicateEmailError } from '@/lib/supabase';
 import type { InscriptionData } from '@/lib/supabase';
 
 interface FormData {
@@ -98,16 +98,6 @@ const InscriptionSection = () => {
     setIsSubmitting(true);
 
     try {
-      // Check if email already exists
-      const emailExists = await checkEmailExists(formData.email);
-      if (emailExists) {
-        toast.error(t('register_error_title'), {
-          description: 'Cette adresse email est déjà enregistrée. / This email is already registered.',
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
       // Prepare data for Supabase
       const inscriptionData: Omit<InscriptionData, 'id' | 'created_at' | 'updated_at'> = {
         full_name: formData.fullName,
@@ -163,9 +153,16 @@ const InscriptionSection = () => {
     } catch (error) {
       console.error('Error submitting registration:', error);
       setIsSubmitting(false);
-      toast.error(t('register_error_title'), {
-        description: 'Une erreur est survenue. Veuillez réessayer. / An error occurred. Please try again.',
-      });
+
+      if (isDuplicateEmailError(error)) {
+        toast.error(t('register_error_title'), {
+          description: 'Cette adresse email est déjà enregistrée. / This email is already registered.',
+        });
+      } else {
+        toast.error(t('register_error_title'), {
+          description: 'Une erreur est survenue. Veuillez réessayer. / An error occurred. Please try again.',
+        });
+      }
     }
   };
 
