@@ -22,8 +22,8 @@ export const translations = {
     // About
     about_title: "Notre Mission",
     about_subtitle: "Unir les Cœurs",
-    about_description: "Unifier tout homme, toute femme du monde entier, de tous bords religieux par l'Évangile de vérité, du salut des âmes et de la destination éternelle.",
-    about_verse: "Jean 3:3",
+    about_description: "Car il veut que tous les hommes soient sauvés et parviennent à la pleine connaissance de la vérité.",
+    about_verse: "1 Timothée 2:4",
     about_org1: "Diaspora Life Word Mission",
     about_org2: "Église Baptiste de Jésus à Paris",
     about_org3: "Africa Life Word Mission",
@@ -149,8 +149,8 @@ export const translations = {
     // About
     about_title: "Our Mission",
     about_subtitle: "Unite Hearts",
-    about_description: "To unify every man, every woman from around the world, from all religious backgrounds through the Gospel of truth, the salvation of souls and eternal destination.",
-    about_verse: "John 3:3",
+    about_description: "For he wants all people to be saved and to come to a knowledge of the truth.",
+    about_verse: "1 Timothy 2:4",
     about_org1: "Diaspora Life Word Mission",
     about_org2: "Baptist Church of Jesus in Paris",
     about_org3: "Africa Life Word Mission",

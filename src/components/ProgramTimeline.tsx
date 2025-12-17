@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, BookOpen, Sunrise, Sparkles, Star } from 'lucide-react';
+import { Calendar, BookOpen, Sunrise, Sparkles, Star, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const ProgramTimeline = () => {
@@ -102,7 +102,7 @@ const ProgramTimeline = () => {
             variants={{
               visible: { transition: { staggerChildren: 0.2 } },
             }}
-            className="grid md:grid-cols-3 gap-8 lg:gap-12 mb-20"
+            className="grid md:grid-cols-3 gap-8 lg:gap-12"
           >
             {days.map((day, index) => (
               <motion.div
@@ -167,6 +167,27 @@ const ProgramTimeline = () => {
                 </div>
               </motion.div>
             ))}
+          </motion.div>
+
+          {/* Registration CTA Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex justify-center mt-12 mb-20"
+          >
+            <motion.a
+              href="#inscription"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className="group inline-flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold px-8 py-4 rounded-full shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300"
+            >
+              <span className="text-lg">
+                {language === 'fr' ? "Je m'inscris maintenant" : "Register Now"}
+              </span>
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </motion.a>
           </motion.div>
         </div>
 
