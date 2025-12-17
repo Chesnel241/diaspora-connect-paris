@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import logo from '@/assets/logo.png';
+import EventsCarousel from './EventsCarousel';
 
 const AboutSection = () => {
   const { t, language } = useLanguage();
@@ -32,6 +33,9 @@ const AboutSection = () => {
             {t('about_subtitle')}
           </p>
         </motion.div>
+
+        {/* Events Photo Carousel */}
+        <EventsCarousel />
 
         {/* Mission Statement */}
         <motion.div
