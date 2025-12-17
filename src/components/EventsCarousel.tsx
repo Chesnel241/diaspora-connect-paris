@@ -14,7 +14,7 @@ const EventsCarousel = () => {
     const loadImages = async () => {
       try {
         // Import all images from events folder using Vite's glob import
-        const imageModules = import.meta.glob<ImageModule>('/src/assets/events/*.{png,jpg,jpeg,webp,gif}', { eager: true });
+        const imageModules = import.meta.glob<ImageModule>('/src/assets/events/*.{png,jpg,jpeg,webp,gif,PNG,JPG,JPEG,WEBP,GIF}', { eager: true });
 
         const loadedImages = Object.values(imageModules).map((module) => module.default);
 
