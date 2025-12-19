@@ -23,9 +23,10 @@ jobs:
       
       - name: Build project
         run: bun run build
-      env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}      
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      
       - name: Deploy to O2switch via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
