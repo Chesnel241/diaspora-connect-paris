@@ -85,9 +85,15 @@ const ProgramTimeline = () => {
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold" />
           </div>
           
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
             {t('program_subtitle')}
           </p>
+          <a
+            href="#inscription"
+            className="inline-block px-8 py-3 rounded-full bg-gold text-white font-semibold shadow-lg hover:bg-gold/90 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2"
+          >
+            {language === 'fr' ? 'Inscription' : 'Register'}
+          </a>
         </motion.div>
 
         {/* Timeline Cards - Horizontal on desktop */}
@@ -111,35 +117,32 @@ const ProgramTimeline = () => {
                   hidden: { opacity: 0, y: 50, scale: 0.9 },
                   visible: { opacity: 1, y: 0, scale: 1 },
                 }}
-                whileHover={{ y: -12, scale: 1.02 }}
+                whileHover={{ boxShadow: '0 8px 32px 0 rgba(34, 60, 80, 0.12)' }}
                 transition={{ duration: 0.4 }}
-                className="group relative"
+                className="relative transition-shadow duration-300"
               >
                 {/* Large number background */}
                 <div className="absolute -top-8 -left-4 font-display text-[120px] font-bold text-foreground/[0.03] leading-none pointer-events-none select-none">
                   {day.number}
                 </div>
                 
-                <div className={`relative bg-card rounded-3xl overflow-hidden shadow-xl ${day.glowColor} shadow-2xl border border-border/50 h-full transition-all duration-500 group-hover:shadow-3xl`}>
+                <div className={`relative bg-card rounded-3xl overflow-hidden shadow-xl ${day.glowColor} shadow-2xl border border-border/50 h-full transition-shadow duration-300`}>
                   {/* Gradient top bar */}
                   <div className={`h-2 bg-gradient-to-r ${day.gradient}`} />
                   
                   {/* Icon circle */}
                   <div className="relative pt-8 pb-4 px-8">
-                    <motion.div 
+                    <div 
                       className={`relative inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br ${day.gradient} shadow-lg`}
-                      whileHover={{ rotate: [0, -10, 10, 0] }}
-                      transition={{ duration: 0.5 }}
                     >
                       <day.icon className="h-10 w-10 text-white" />
-                      
                       {/* Sparkle decorations */}
                       <motion.div
                         className="absolute -top-1 -right-1 w-3 h-3 bg-gold rounded-full"
                         animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
                         transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
                       />
-                    </motion.div>
+                    </div>
                   </div>
                   
                   {/* Content */}
@@ -151,7 +154,7 @@ const ProgramTimeline = () => {
                       <span className="text-sm font-semibold text-gold">{day.date}</span>
                     </div>
                     
-                    <h3 className="text-xl md:text-2xl font-bold text-foreground group-hover:text-gold transition-colors duration-300 leading-tight">
+                    <h3 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
                       {day.title}
                     </h3>
                     

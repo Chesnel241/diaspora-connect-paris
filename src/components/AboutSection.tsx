@@ -51,7 +51,14 @@ const AboutSection = () => {
             <p className="font-display text-2xl md:text-3xl lg:text-4xl text-primary-foreground leading-relaxed italic">
               "{t('about_description')}"
             </p>
-            <p className="mt-6 text-gold font-medium">— {t('about_verse')}</p>
+            <motion.p
+              className="mt-6 text-gold font-medium"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2 }}
+            >
+              {t('about_verse')}
+            </motion.p>
           </div>
         </motion.div>
 
@@ -70,12 +77,12 @@ const AboutSection = () => {
                 hidden: { opacity: 0, y: 30 },
                 visible: { opacity: 1, y: 0 },
               }}
-              whileHover={{ y: -8 }}
+              whileHover={{ boxShadow: '0 8px 32px 0 rgba(34, 60, 80, 0.12)' }}
               transition={{ duration: 0.4 }}
-              className="group bg-card rounded-2xl p-8 shadow-lg border border-border/50 text-center"
+              className="bg-card rounded-2xl p-8 shadow-lg border border-border/50 text-center transition-shadow duration-300"
             >
               <img src={logo} alt={org.name} className="h-20 w-20 mx-auto mb-6" />
-              <h3 className="text-lg font-semibold text-foreground group-hover:text-gold transition-colors duration-300">
+              <h3 className="text-lg font-semibold text-foreground">
                 {org.name}
               </h3>
             </motion.div>

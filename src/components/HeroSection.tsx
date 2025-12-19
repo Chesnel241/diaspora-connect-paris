@@ -47,7 +47,7 @@ const HeroSection = () => {
   }, []);
 
   const scrollToRegister = () => {
-    const element = document.getElementById('register');
+    const element = document.getElementById('inscription');
     if (element) {
       const offset = 80;
       const elementPosition = element.getBoundingClientRect().top;

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import allCountryCodes from '@/lib/all-country-codes.json';
 import { motion } from 'framer-motion';
 import {
   User, Mail, Phone, Globe, MapPin, Home, Baby,
@@ -26,6 +27,7 @@ interface FormData {
   hasSpecialNeeds: boolean;
   allergies: string;
   comments: string;
+  spokenLanguage: string;
 }
 
 const phoneCodes = [
@@ -56,6 +58,7 @@ const InscriptionSection = () => {
     phone: '',
     country: '',
     city: '',
+    spokenLanguage: '',
     needsAccommodation: false,
     startDate: '',
     endDate: '',
@@ -66,6 +69,7 @@ const InscriptionSection = () => {
     hasSpecialNeeds: false,
     allergies: '',
     comments: '',
+    spokenLanguage: '',
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -184,7 +188,7 @@ const InscriptionSection = () => {
     } focus:outline-none focus:ring-2 focus:ring-navy/20`;
 
   return (
-    <section id="register" className="section-padding bg-secondary">
+    <section id="inscription" className="section-padding bg-secondary">
       <div className="container mx-auto max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -318,6 +322,23 @@ const InscriptionSection = () => {
                   />
                 </div>
                 {errors.city && <p className="text-destructive text-sm mt-1">{errors.city}</p>}
+              </div>
+              {/* Spoken Language */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  {t('register_spoken_language_label') || 'Langue parlée (pour besoin d\'interprétation à la convention)'}
+                </label>
+                <div className="relative">
+                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-navy" />
+                  <input
+                    type="text"
+                    className={inputClasses('spokenLanguage') + ' pl-12'}
+                    placeholder={t('register_spoken_language_placeholder') || 'Ex: Français, Anglais, Lingala...'}
+                    value={formData.spokenLanguage}
+                    onChange={e => handleChange('spokenLanguage', e.target.value)}
+                    autoComplete="language"
+                  />
+                </div>
               </div>
             </div>
           </div>

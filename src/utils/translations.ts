@@ -23,7 +23,7 @@ export const translations = {
     about_title: "Notre Mission",
     about_subtitle: "Unir les Cœurs",
     about_description: "Unifier tout homme, toute femme du monde entier, de tous bords religieux par l'Évangile de vérité, du salut des âmes et de la destination éternelle.",
-    about_verse: "Jean 3:3",
+    about_verse: "Car il veut que tous les hommes soient sauvés et parviennent à la pleine connaissance de la vérité (1 Timothée 2:4)",
     about_org1: "Diaspora Life Word Mission",
     about_org2: "Église Baptiste de Jésus à Paris",
     about_org3: "Africa Life Word Mission",
@@ -75,6 +75,8 @@ export const translations = {
     faq_contact: "Vous avez d'autres questions ? Contactez-nous",
 
     // Registration
+    register_spoken_language_label: "Langue parlée (pour besoin d'interprétation à la convention)",
+    register_spoken_language_placeholder: "Ex: Français, Anglais, Lingala...",
     register_title: "Inscription",
     register_subtitle: "Rejoignez-nous pour cet événement exceptionnel",
     register_personal: "Informations Personnelles",
@@ -150,7 +152,7 @@ export const translations = {
     about_title: "Our Mission",
     about_subtitle: "Unite Hearts",
     about_description: "To unify every man, every woman from around the world, from all religious backgrounds through the Gospel of truth, the salvation of souls and eternal destination.",
-    about_verse: "John 3:3",
+    about_verse: "For He wants all people to be saved and to come to the knowledge of the truth (1 Timothy 2:4)",
     about_org1: "Diaspora Life Word Mission",
     about_org2: "Baptist Church of Jesus in Paris",
     about_org3: "Africa Life Word Mission",
@@ -202,6 +204,8 @@ export const translations = {
     faq_contact: "Have questions? Feel free to contact us",
 
     // Registration
+    register_spoken_language_label: "Spoken language (for interpretation needs at the convention)",
+    register_spoken_language_placeholder: "E.g.: French, English, Lingala...",
     register_title: "Registration",
     register_subtitle: "Join us for this exceptional event",
     register_personal: "Personal Information",
