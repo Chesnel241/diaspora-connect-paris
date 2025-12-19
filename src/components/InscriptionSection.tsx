@@ -69,7 +69,6 @@ const InscriptionSection = () => {
     hasSpecialNeeds: false,
     allergies: '',
     comments: '',
-    spokenLanguage: '',
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -263,17 +262,14 @@ const InscriptionSection = () => {
                   {t('register_phone')} *
                 </label>
                 <div className="flex gap-2">
-                  <select
-                    value={formData.phoneCode}
-                    onChange={e => handleChange('phoneCode', e.target.value)}
-                    className="px-3 py-3 rounded-xl border-2 border-border bg-card text-foreground focus:border-navy focus:outline-none"
-                  >
-                    {phoneCodes.map(({ code, country }) => (
-                      <option key={code} value={code}>
-                        {code} ({country})
-                      </option>
-                    ))}
-                  </select>
+                   <input
+                     type="text"
+                     value={formData.phoneCode}
+                     onChange={e => handleChange('phoneCode', e.target.value)}
+                     placeholder="+XX"
+                     className="px-3 py-3 rounded-xl border-2 border-border bg-card text-foreground focus:border-navy focus:outline-none w-28"
+                     autoComplete="tel-country-code"
+                   />
                   <div className="relative flex-1">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <input
