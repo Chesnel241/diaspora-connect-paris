@@ -50,11 +50,9 @@ Ce guide vous explique comment configurer Supabase pour gérer les inscriptions 
 
    **anon/public key** (une longue chaîne de caractères) :
    ```
-   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-   ```
+   votre-cle-anonyme-supabase-ici   ```
 
-4. **Gardez cet onglet ouvert**, vous allez en avoir besoin !
-
+4. **Gardez cet onglet ouvert**, vous allez en avoir besoin !votre-cle-anonyme-supabase-ici
 ---
 
 ## Étape 4 : Configurer votre application locale
@@ -67,12 +65,10 @@ Ce guide vous explique comment configurer Supabase pour gérer les inscriptions 
 
 ```env
 VITE_SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+VITE_SUPABASE_ANON_KEY=votre-cle-anonyme-supabase-ici```
 
 ⚠️ **Remplacez** les valeurs par celles de votre projet (étape 3)
-
-4. **Enregistrez** le fichier `.env`
+VITE_SUPABASE_ANON_KEY=votre-cle-anonyme-supabase-ici4. **Enregistrez** le fichier `.env`
 
 ---
 
