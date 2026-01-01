@@ -119,6 +119,7 @@ const InscriptionSection = () => {
         phone: formData.phone,
         country: formData.country,
         city: formData.city,
+        languages: formData.spokenLanguage || null,
         needs_accommodation: formData.needsAccommodation,
         start_date: formData.startDate || null,
         end_date: formData.endDate || null,

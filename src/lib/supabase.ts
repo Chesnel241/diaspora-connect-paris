@@ -41,6 +41,7 @@ export interface InscriptionData {
   phone: string;
   country: string;
   city: string;
+  languages?: string | null;
 
   // Section B: Accommodation
   needs_accommodation: boolean;
