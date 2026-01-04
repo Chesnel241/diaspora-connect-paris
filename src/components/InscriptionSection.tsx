@@ -152,6 +152,7 @@ const InscriptionSection = () => {
           phone: '',
           country: '',
           city: '',
+          spokenLanguage: '',
           needsAccommodation: false,
           startDate: '',
           endDate: '',
