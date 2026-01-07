@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import allCountryCodes from '@/lib/all-country-codes.json';
 import { motion } from 'framer-motion';
 import {
@@ -72,29 +72,57 @@ const InscriptionSection = () => {
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const phoneCodeRef = useRef<HTMLInputElement | null>(null);
+  const phoneRef = useRef<HTMLInputElement | null>(null);
+  const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const validateForm = (): boolean => {
+  const validateForm = (): string | null => {
     const newErrors: Partial<Record<keyof FormData, string>> = {};
-
+    console.log('Validating form data:', formData);
     if (!formData.fullName.trim()) newErrors.fullName = 'Required';
     if (!formData.email.trim()) {
       newErrors.email = 'Required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Invalid email';
     }
+    if (!formData.phoneCode.trim()) newErrors.phoneCode = 'Required';
     if (!formData.phone.trim()) newErrors.phone = 'Required';
     if (!formData.country.trim()) newErrors.country = 'Required';
     if (!formData.city.trim()) newErrors.city = 'Required';
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    const order: (keyof FormData)[] = ['fullName', 'email', 'phoneCode', 'phone', 'country', 'city'];
+    const first = order.find(key => !!newErrors[key]);
+    return first ?? null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    const firstError = validateForm();
+    if (firstError) {
       toast.error(t('register_error_title'));
+      // focus first invalid field
+      switch (firstError) {
+        case 'fullName':
+          nameRef.current?.focus();
+          break;
+        case 'email':
+          emailRef.current?.focus();
+          break;
+        case 'phoneCode':
+          phoneCodeRef.current?.focus();
+          break;
+        case 'phone':
+          phoneRef.current?.focus();
+          break;
+        case 'country':
+        case 'city':
+          break;
+      }
       return;
     }
 
@@ -104,10 +132,14 @@ const InscriptionSection = () => {
       // Check if email already exists
       const emailExists = await checkEmailExists(formData.email);
       if (emailExists) {
+        const emailError = 'Cette adresse email est déjà enregistrée.';
+        setErrors(prev => ({ ...prev, email: emailError }));
         toast.error(t('register_error_title'), {
           description: 'Cette adresse email est déjà enregistrée. / This email is already registered.',
         });
         setIsSubmitting(false);
+        // focus the email input so the user can correct it
+        emailRef.current?.focus();
         return;
       }
 
@@ -145,6 +177,7 @@ const InscriptionSection = () => {
       // Reset form after 2 seconds
       setTimeout(() => {
         setIsSuccess(false);
+        setSubmitMessage(null);
         setFormData({
           fullName: '',
           email: '',
@@ -179,6 +212,7 @@ const InscriptionSection = () => {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
+    if (submitMessage) setSubmitMessage(null);
   };
 
   const inputClasses = (field: keyof FormData) =>
@@ -224,38 +258,46 @@ const InscriptionSection = () => {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Full Name */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="register-fullname" className="block text-sm font-medium text-foreground mb-2">
                   {t('register_fullname')} *
                 </label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <input
+                    id="register-fullname"
+                    ref={nameRef}
                     type="text"
                     value={formData.fullName}
                     onChange={e => handleChange('fullName', e.target.value)}
                     placeholder={t('register_fullname_placeholder')}
                     className={inputClasses('fullName')}
+                    aria-invalid={!!errors.fullName}
+                    aria-describedby={errors.fullName ? 'register-fullname-error' : undefined}
                   />
                 </div>
-                {errors.fullName && <p className="text-destructive text-sm mt-1">{errors.fullName}</p>}
+                {errors.fullName && <p id="register-fullname-error" className="text-destructive text-sm mt-1">{errors.fullName}</p>}
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="register-email" className="block text-sm font-medium text-foreground mb-2">
                   {t('register_email')} *
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <input
+                    id="register-email"
+                    ref={emailRef}
                     type="email"
                     value={formData.email}
                     onChange={e => handleChange('email', e.target.value)}
                     placeholder={t('register_email_placeholder')}
                     className={inputClasses('email')}
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? 'register-email-error' : undefined}
                   />
                 </div>
-                {errors.email && <p className="text-destructive text-sm mt-1">{errors.email}</p>}
+                {errors.email && <p id="register-email-error" className="text-destructive text-sm mt-1">{errors.email}</p>}
               </div>
 
               {/* Phone */}
@@ -265,11 +307,16 @@ const InscriptionSection = () => {
                 </label>
                 <div className="flex gap-2">
                    <input
+                     id="register-phonecode"
+                     ref={phoneCodeRef}
                      type="text"
                      value={formData.phoneCode}
                      onChange={e => handleChange('phoneCode', e.target.value)}
                      placeholder="+XX"
-                     className="px-3 py-3 rounded-xl border-2 border-border bg-card text-foreground focus:border-navy focus:outline-none w-28"
+                     className={
+                       `px-3 py-3 rounded-xl border-2 bg-card text-foreground focus:outline-none w-28 ` +
+                       (errors.phoneCode ? 'border-destructive' : 'border-border focus:border-navy')
+                     }
                      autoComplete="tel-country-code"
                    />
                   <div className="relative flex-1">
@@ -506,6 +553,11 @@ const InscriptionSection = () => {
           </div>
 
           {/* Submit Button */}
+          {submitMessage && (
+            <div className={`mb-4 text-sm ${submitMessage.type === 'error' ? 'text-destructive' : 'text-emerald'}`}>
+              {submitMessage.text}
+            </div>
+          )}
           <motion.button
             type="submit"
             disabled={isSubmitting || isSuccess}
