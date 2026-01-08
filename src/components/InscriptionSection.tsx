@@ -1,6 +1,9 @@
 import { useState, useRef } from 'react';
 import allCountryCodes from '@/lib/all-country-codes.json';
 import { motion } from 'framer-motion';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import 'react-phone-number-input/style.css';
 import {
   User, Mail, Phone, Globe, MapPin, Home, Baby,
   UtensilsCrossed, MessageSquare, Check, Loader2, Accessibility
@@ -28,7 +31,7 @@ interface FormData {
   allergies: string;
   comments: string;
   spokenLanguage: string;
-}
+  }
 
 const phoneCodes = [
   { code: '+33', country: 'FR' },
@@ -74,7 +77,6 @@ const InscriptionSection = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const emailRef = useRef<HTMLInputElement | null>(null);
   const nameRef = useRef<HTMLInputElement | null>(null);
-  const phoneCodeRef = useRef<HTMLInputElement | null>(null);
   const phoneRef = useRef<HTMLInputElement | null>(null);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -89,6 +91,13 @@ const InscriptionSection = () => {
     }
     if (!formData.phoneCode.trim()) newErrors.phoneCode = 'Required';
     if (!formData.phone.trim()) newErrors.phone = 'Required';
+    else {
+      try {
+        if (!isValidPhoneNumber(formData.phone)) newErrors.phone = 'Invalid phone';
+      } catch (e) {
+        // ignore validation errors
+      }
+    }
     if (!formData.country.trim()) newErrors.country = 'Required';
     if (!formData.city.trim()) newErrors.city = 'Required';
 
@@ -114,7 +123,8 @@ const InscriptionSection = () => {
           emailRef.current?.focus();
           break;
         case 'phoneCode':
-          phoneCodeRef.current?.focus();
+          // focus the country select when phone code is missing
+          document.getElementById('register-country')?.focus();
           break;
         case 'phone':
           phoneRef.current?.focus();
@@ -306,34 +316,64 @@ const InscriptionSection = () => {
                   {t('register_phone')} *
                 </label>
                 <div className="flex gap-2">
-                   <input
-                     id="register-phonecode"
-                     ref={phoneCodeRef}
-                     type="text"
-                     value={formData.phoneCode}
-                     onChange={e => handleChange('phoneCode', e.target.value)}
-                     placeholder="+XX"
-                     className={
-                       `px-3 py-3 rounded-xl border-2 bg-card text-foreground focus:outline-none w-28 ` +
-                       (errors.phoneCode ? 'border-destructive' : 'border-border focus:border-navy')
-                     }
-                     autoComplete="tel-country-code"
-                   />
+                  <div className="w-44">
+                    <label htmlFor="register-country" className="sr-only">{t('register_country')}</label>
+                    <select
+                      id="register-country"
+                      value={formData.country}
+                      onChange={e => {
+                        const name = e.target.value;
+                        const found = (allCountryCodes as any[]).find(c => c.name === name || c.code === name || c.country === name);
+                        if (found) {
+                          handleChange('country', found.name || found.country || name);
+                          handleChange('phoneCode', found.dial_code || found.code || found.callingCode || found.phone || formData.phoneCode);
+                        } else {
+                          handleChange('country', name);
+                        }
+                      }}
+                      className={`w-full px-3 py-3 rounded-xl border-2 bg-card text-foreground focus:outline-none ${errors.country ? 'border-destructive' : 'border-border focus:border-navy'}`}>
+                      <option value="">{t('register_country_placeholder')}</option>
+                      {(allCountryCodes as any[]).map(c => (
+                        <option key={c.code || c.name} value={c.name}>{`${c.name} (${c.dial_code || c.code || ''})`}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="relative flex-1">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <input
-                      type="tel"
+                    <PhoneInput
+                      international
+                      defaultCountry={formData.country ? undefined : 'FR'}
                       value={formData.phone}
-                      onChange={e => handleChange('phone', e.target.value)}
+                      onChange={value => {
+                        handleChange('phone', value || '');
+                        // attempt to parse country and calling code
+                        try {
+                          const parsed = value ? parsePhoneNumberFromString(value) : null;
+                          if (parsed) {
+                            handleChange('phoneCode', parsed.countryCallingCode ? `+${parsed.countryCallingCode}` : formData.phoneCode);
+                            if (parsed.country) {
+                              // find full country name from allCountryCodes
+                              const found = (allCountryCodes as any[]).find(c => c.code === parsed.country || c.iso2 === parsed.country || c.alpha2 === parsed.country);
+                              if (found) handleChange('country', found.name || found.country);
+                              else handleChange('country', parsed.country);
+                            }
+                          }
+                        } catch (e) {
+                          // ignore parse errors
+                        }
+                      }}
+                      id="register-phone"
                       placeholder={t('register_phone_placeholder')}
                       className={inputClasses('phone')}
                     />
                   </div>
                 </div>
-                {errors.phone && <p className="text-destructive text-sm mt-1">{errors.phone}</p>}
+                {errors.phone && <p id="register-phone-error" className="text-destructive text-sm mt-1">{errors.phone}</p>}
+                {errors.phoneCode && <p className="text-destructive text-sm mt-1">{errors.phoneCode}</p>}
               </div>
 
-              {/* Country */}
+              {/* Country (readonly - selected via the country select) */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   {t('register_country')} *
@@ -343,7 +383,7 @@ const InscriptionSection = () => {
                   <input
                     type="text"
                     value={formData.country}
-                    onChange={e => handleChange('country', e.target.value)}
+                    readOnly
                     placeholder={t('register_country_placeholder')}
                     className={inputClasses('country')}
                   />
