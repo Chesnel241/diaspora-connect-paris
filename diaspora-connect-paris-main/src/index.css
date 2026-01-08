@@ -1,0 +1,360 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Diaspora 2026 Design System
+   A refined, sophisticated palette for an international religious convention
+   Navy blue (primary), Gold (accent), Emerald (CTA), Red (secondary accent)
+*/
+
+@layer base {
+  :root {
+    /* Navy Blue - Primary brand color */
+    --primary: 213 56% 24%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Background - Clean white */
+    --background: 0 0% 100%;
+    --foreground: 213 56% 15%;
+    
+    /* Card surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 213 56% 15%;
+    
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 56% 15%;
+    
+    /* Secondary - Light gray backgrounds */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 213 56% 15%;
+    
+    /* Muted - Subtle backgrounds and text */
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    /* Accent - Gold */
+    --accent: 51 100% 50%;
+    --accent-foreground: 213 56% 15%;
+    
+    /* Destructive - Red accent */
+    --destructive: 356 84% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Emerald CTA */
+    --emerald: 160 84% 39%;
+    --emerald-foreground: 0 0% 100%;
+    
+    /* Gold decorative */
+    --gold: 51 100% 50%;
+    --gold-light: 51 100% 70%;
+    
+    /* Red accent */
+    --red: 356 84% 50%;
+    --red-light: 356 84% 65%;
+    
+    /* Navy variants */
+    --navy: 213 56% 24%;
+    --navy-dark: 213 56% 15%;
+    --navy-light: 213 40% 40%;
+    
+    /* UI elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 213 56% 24%;
+    --radius: 0.75rem;
+    
+    /* Sidebar (keeping for compatibility) */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 213 56% 24%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 213 56% 24%;
+  }
+
+  .dark {
+    --primary: 51 100% 50%;
+    --primary-foreground: 213 56% 15%;
+    
+    --background: 213 56% 10%;
+    --foreground: 0 0% 95%;
+    
+    --card: 213 56% 15%;
+    --card-foreground: 0 0% 95%;
+    
+    --popover: 213 56% 15%;
+    --popover-foreground: 0 0% 95%;
+    
+    --secondary: 213 40% 20%;
+    --secondary-foreground: 0 0% 95%;
+    
+    --muted: 213 40% 20%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 51 100% 50%;
+    --accent-foreground: 213 56% 15%;
+    
+    --destructive: 356 84% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 213 40% 25%;
+    --input: 213 40% 25%;
+    --ring: 51 100% 50%;
+    
+    --sidebar-background: 213 56% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 51 100% 50%;
+    --sidebar-primary-foreground: 213 56% 15%;
+    --sidebar-accent: 213 40% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 213 40% 25%;
+    --sidebar-ring: 51 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Gradient backgrounds */
+  .gradient-navy {
+    background: linear-gradient(135deg, hsl(var(--navy)) 0%, hsl(var(--navy-dark)) 100%);
+  }
+  
+  .gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(var(--gold-light)) 100%);
+  }
+  
+  .gradient-emerald {
+    background: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(160 84% 45%) 100%);
+  }
+  
+  .gradient-hero-overlay {
+    background: linear-gradient(180deg, hsla(213, 56%, 10%, 0.7) 0%, hsla(213, 56%, 20%, 0.85) 50%, hsla(213, 56%, 15%, 0.95) 100%);
+  }
+  
+  /* Text gradient for titles */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(51 100% 70%) 50%, hsl(var(--gold)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Elegant section divider */
+  .section-divider {
+    position: relative;
+  }
+  
+  .section-divider::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, hsl(var(--gold)), transparent);
+  }
+  
+  /* Shimmer animation for buttons */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsla(0, 0%, 100%, 0.3),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+  
+  /* Glass effect */
+  .glass {
+    background: hsla(0, 0%, 100%, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsla(0, 0%, 100%, 0.2);
+  }
+  
+  .glass-dark {
+    background: hsla(213, 56%, 15%, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsla(0, 0%, 100%, 0.1);
+  }
+  
+  /* Glow effects */
+  .glow-gold {
+    box-shadow: 0 0 40px hsla(51, 100%, 50%, 0.3), 0 0 80px hsla(51, 100%, 50%, 0.1);
+  }
+  
+  .glow-emerald {
+    box-shadow: 0 0 40px hsla(160, 84%, 39%, 0.4), 0 0 80px hsla(160, 84%, 39%, 0.2);
+  }
+  
+  /* Card styles */
+  .card-hover {
+    @apply transition-all duration-500 ease-out;
+  }
+  
+  .card-hover:hover {
+    @apply -translate-y-2 shadow-2xl;
+  }
+  
+  /* Elegant card with border glow */
+  .card-elegant {
+    @apply relative rounded-2xl transition-all duration-500;
+  }
+  
+  .card-elegant::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, hsla(51, 100%, 50%, 0.3), transparent, hsla(51, 100%, 50%, 0.3));
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: -1;
+  }
+  
+  .card-elegant:hover::before {
+    opacity: 1;
+  }
+  
+  /* Section styles */
+  .section-padding {
+    @apply py-20 md:py-32 px-4 md:px-8;
+  }
+  
+  /* Link underline animation */
+  .link-underline {
+    position: relative;
+  }
+  
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, hsl(var(--gold)), hsl(var(--destructive)));
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+  }
+  
+  .link-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  
+  /* Floating animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  /* Pulse glow animation */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px hsla(51, 100%, 50%, 0.3); }
+    50% { box-shadow: 0 0 40px hsla(51, 100%, 50%, 0.5); }
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  /* Text shadow for hero text */
+  .text-shadow {
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Backdrop blur */
+  .backdrop-blur-nav {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* === Toast color overrides (broad coverage) === */
+@layer components {
+  /* Generic lighter background for toasts */
+  .toaster .toast {
+    background-image: none !important;
+  }
+
+  /* Success variants */
+  .toaster [data-toast-type="success"],
+  .toaster [data-type="success"],
+  .toaster [data-toast="success"],
+  .toaster [data-theme="success"],
+  .toaster [data-status="success"],
+  .toaster .toast[data-toast-type="success"],
+  .toaster .toast[data-type="success"],
+  .toaster .toast.success,
+  .toaster .success {
+    background-color: rgba(34,197,94,0.92) !important; /* emerald-500 */
+    color: white !important;
+  }
+
+  /* Error variants */
+  .toaster [data-toast-type="error"],
+  .toaster [data-type="error"],
+  .toaster [data-toast="error"],
+  .toaster [data-theme="error"],
+  .toaster [data-status="error"],
+  .toaster .toast[data-toast-type="error"],
+  .toaster .toast[data-type="error"],
+  .toaster .toast.error,
+  .toaster .error {
+    background-color: rgba(239,68,68,0.92) !important; /* red-500 */
+    color: white !important;
+  }
+
+  /* Ensure nested elements inherit the toast color */
+  .toaster .toast * {
+    color: inherit !important;
+  }
+}
