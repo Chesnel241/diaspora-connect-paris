@@ -9,17 +9,16 @@ import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration from environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Validate that environment variables are set
-if (!supabaseUrl || !supabasePublishableKey) {
+if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables!');
-  console.error('Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are set in your .env file');
+  console.error('Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in your .env file');
 }
 
 // Create and export the Supabase client
-export const supabase = createClient(supabaseUrl || '', supabasePublishableKey || '', {
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   auth: {
     persistSession: false, // We don't need session persistence for public registration
   },
