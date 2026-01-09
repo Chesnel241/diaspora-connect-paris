@@ -36,7 +36,7 @@ const Navigation = () => {
     { id: 'program', label: t('nav_program') },
     { id: 'flyer', label: t('nav_flyer') },
     { id: 'info', label: t('nav_info') },
-    { id: 'register', label: t('nav_register') },
+    { id: 'inscription', label: t('nav_register') },
   ];
 
   return (
