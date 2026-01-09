@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
 import allCountryCodes from '@/lib/all-country-codes.json';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Mail, Phone, Globe, MapPin, Home, Baby,
-  UtensilsCrossed, MessageSquare, Check, Loader2, Accessibility
+  UtensilsCrossed, MessageSquare, Check, Loader2, Accessibility, PartyPopper
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
@@ -174,7 +174,7 @@ const InscriptionSection = () => {
         description: t('register_success_message'),
       });
 
-      // Reset form after 2 seconds
+      // Reset form after 5 seconds to give user time to read confirmation
       setTimeout(() => {
         setIsSuccess(false);
         setSubmitMessage(null);
@@ -197,7 +197,7 @@ const InscriptionSection = () => {
           allergies: '',
           comments: '',
         });
-      }, 2000);
+      }, 5000);
     } catch (error) {
       console.error('Error submitting registration:', error);
       setIsSubmitting(false);
@@ -584,6 +584,138 @@ const InscriptionSection = () => {
             )}
           </motion.button>
         </motion.form>
+
+        {/* Success Confirmation Overlay */}
+        <AnimatePresence>
+          {isSuccess && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-navy-dark/80 backdrop-blur-sm p-4"
+              onClick={() => {
+                setIsSuccess(false);
+                setFormData({
+                  fullName: '',
+                  email: '',
+                  phoneCode: '+33',
+                  phone: '',
+                  country: '',
+                  city: '',
+                  spokenLanguage: '',
+                  needsAccommodation: false,
+                  startDate: '',
+                  endDate: '',
+                  hasChildren: false,
+                  numberOfChildren: '',
+                  childrenAges: '',
+                  hasReducedMobility: false,
+                  hasSpecialNeeds: false,
+                  allergies: '',
+                  comments: '',
+                });
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.8, y: 50 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.8, y: 50 }}
+                transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                className="bg-card rounded-3xl p-8 md:p-12 max-w-2xl w-full shadow-2xl border-4 border-emerald relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Decorative elements */}
+                <div className="absolute -top-4 -right-4 w-24 h-24 bg-emerald rounded-full opacity-20 blur-3xl animate-pulse" />
+                <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gold rounded-full opacity-20 blur-3xl animate-pulse" />
+
+                {/* Content */}
+                <div className="relative text-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2, type: 'spring', damping: 15 }}
+                    className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-emerald/20 rounded-full mb-6"
+                  >
+                    <motion.div
+                      animate={{ rotate: [0, 10, -10, 10, 0] }}
+                      transition={{ delay: 0.5, duration: 0.5 }}
+                    >
+                      <PartyPopper className="w-10 h-10 md:w-12 md:h-12 text-emerald" />
+                    </motion.div>
+                  </motion.div>
+
+                  <motion.h2
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-3xl md:text-4xl font-bold text-emerald mb-4"
+                  >
+                    {t('register_success_title')}
+                  </motion.h2>
+
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-lg md:text-xl text-foreground mb-6 leading-relaxed"
+                  >
+                    {t('register_success_message')}
+                  </motion.p>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="bg-secondary/50 rounded-2xl p-6 mb-8"
+                  >
+                    <p className="text-muted-foreground text-sm md:text-base">
+                      {language === 'fr'
+                        ? "Vous recevrez bientôt un email de confirmation. Nous avons hâte de vous accueillir à Paris !"
+                        : "You will soon receive a confirmation email. We look forward to welcoming you to Paris!"}
+                    </p>
+                  </motion.div>
+
+                  <motion.button
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    onClick={() => {
+                      setIsSuccess(false);
+                      setFormData({
+                        fullName: '',
+                        email: '',
+                        phoneCode: '+33',
+                        phone: '',
+                        country: '',
+                        city: '',
+                        spokenLanguage: '',
+                        needsAccommodation: false,
+                        startDate: '',
+                        endDate: '',
+                        hasChildren: false,
+                        numberOfChildren: '',
+                        childrenAges: '',
+                        hasReducedMobility: false,
+                        hasSpecialNeeds: false,
+                        allergies: '',
+                        comments: '',
+                      });
+                    }}
+                    className="px-8 py-3 bg-emerald text-white rounded-xl font-semibold hover:bg-emerald/90 transition-all hover:scale-105 active:scale-95"
+                  >
+                    {language === 'fr' ? 'Fermer' : 'Close'}
+                  </motion.button>
+
+                  <p className="text-xs text-muted-foreground mt-4">
+                    {language === 'fr'
+                      ? "Ce message se fermera automatiquement dans quelques secondes"
+                      : "This message will close automatically in a few seconds"}
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
