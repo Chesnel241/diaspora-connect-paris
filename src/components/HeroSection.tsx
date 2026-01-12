@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, ArrowDown } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -18,7 +18,7 @@ const HeroSection = () => {
 
   const targetDate = useMemo(() => new Date('2026-07-24T00:00:00'), []);
 
-  const calculateTimeLeft = (): TimeLeft => {
+  const calculateTimeLeft = useCallback((): TimeLeft => {
     const difference = targetDate.getTime() - new Date().getTime();
     if (difference <= 0) {
       return { days: 0, hours: 0, minutes: 0, seconds: 0 };
@@ -29,7 +29,7 @@ const HeroSection = () => {
       minutes: Math.floor((difference / 1000 / 60) % 60),
       seconds: Math.floor((difference / 1000) % 60),
     };
-  };
+  }, [targetDate]);
 
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
 
@@ -38,7 +38,7 @@ const HeroSection = () => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [calculateTimeLeft]);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
